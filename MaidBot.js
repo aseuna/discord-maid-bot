@@ -14,37 +14,38 @@ const client = new Discord.Client();
  * received from Discord
  */
 
+function deleteMessages(channel){
+	
+	channel.fetchMessages({limit: 100})
+	.then(function(messages){
+		//creates an array of messages on the current channel
+		let messagesArr = messages.array();
+		//number of messages
+		let messageCount = messagesArr.length;
+		//deleting messages in the array
+		for(let i = messageCount - 1; i > -1; i--) {
+			messagesArr[i].delete();
+		}
+	})
+	.then(function(){
+		channel.send('Channel cleansed :)');
+	})
+	.catch(function(err){
+		console.log('error thrown');
+		console.log(err);
+	});
+};
+
+
 client.once('ready', function(){
 	console.log('I am ready!');
 });
 
-client.on('message', function(msg){
-	
-	function deleteMessages(){
-		
-		msg.channel.fetchMessages({limit: 100})
-		.then(function(messages){
-			//creates an array of messages on the current channel
-			let messagesArr = messages.array();
-			//number of messages
-			let messageCount = messagesArr.length;
-			//deleting messages in the array
-			for(let i = messageCount - 1; i > -1; i--) {
-				messagesArr[i].delete();
-			}
-		})
-		.then(function(){
-			msg.channel.send('Channel cleansed :)');
-		})
-		.catch(function(err){
-			console.log('error thrown');
-			console.log(err);
-		});
-	};
+client.on('message', function(userMsg){
   
 	//cleans the current channel's messages when user writes !cleanse on that particular channel
-	if(msg.content === '!cleanse') {
-		deleteMessages();
+	if(userMsg.content === '!cleanse') {
+		deleteMessages(userMsg.channel);
 	}
 	
 });
