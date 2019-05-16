@@ -14,10 +14,12 @@ const client = new Discord.Client();
  * received from Discord
  */
 
+
 client.once('ready', function(){
 	console.log('I am ready!');
 });
 
+//deletes messages on the channel received as an argument
 function deleteMessages(channel){
 	
 	channel.fetchMessages({limit: 100})
@@ -40,11 +42,24 @@ function deleteMessages(channel){
 	});
 };
 
+
 client.on('message', function(userMsg){
   
-	//cleans the current channel's messages when user writes !cleanse on that particular channel
-	if(userMsg.content === '!cleanse') {
-		deleteMessages(userMsg.channel);
+	let channelArr = client.channels.array();
+	//cleans a channel's messages when user writes !cleanse and the channel name
+	if(userMsg.content.startsWith('!cleanse')){
+		//if user message only contains !cleanse, the current channel is cleansed
+		if(userMsg.content === '!cleanse'){
+			deleteMessages(userMsg.channel);
+		}
+		else{
+			//searches for a channel with the name that is inside !cleanse message
+			for(let i = 0; i < channelArr.length; i++){
+				if(userMsg.content.indexOf(channelArr[i].name) > -1){
+					deleteMessages(channelArr[i])
+				}
+			}
+		}
 	}
 	
 });
