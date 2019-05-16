@@ -18,8 +18,7 @@ client.once('ready', function(){
 	console.log('I am ready!');
 });
 
-client.on('message', msg => {
-	
+client.on('message', function(msg){
 	
 	function deleteMessages(){
 		
@@ -37,7 +36,7 @@ client.on('message', msg => {
 		.then(function(){
 			msg.channel.send('Channel cleansed :)');
 		})
-		.catch(function(err) {
+		.catch(function(err){
 			console.log('error thrown');
 			console.log(err);
 		});
