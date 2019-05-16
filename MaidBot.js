@@ -14,6 +14,10 @@ const client = new Discord.Client();
  * received from Discord
  */
 
+client.once('ready', function(){
+	console.log('I am ready!');
+});
+
 function deleteMessages(channel){
 	
 	channel.fetchMessages({limit: 100})
@@ -35,11 +39,6 @@ function deleteMessages(channel){
 		console.log(err);
 	});
 };
-
-
-client.once('ready', function(){
-	console.log('I am ready!');
-});
 
 client.on('message', function(userMsg){
   
