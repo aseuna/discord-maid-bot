@@ -24,7 +24,7 @@ client.on('message', msg => {
 		
 		
 		msg.channel.fetchMessages({limit: 100})
-		.then(messages => {
+		.then(function(messages){
 			//creates an array of messages on the current channel
 			let messagesArr = messages.array();
 			//number of messages
@@ -33,6 +33,9 @@ client.on('message', msg => {
 			for(let i = messageCount - 1; i > -1; i--) {
 				messagesArr[i].delete();
 			}
+		})
+		.then(function(){
+			msg.channel.send('Channel cleansed :)');
 		})
 		.catch(function(err) {
 			console.log('error thrown');
