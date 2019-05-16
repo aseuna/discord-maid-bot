@@ -20,7 +20,7 @@ client.once('ready', () => {
 client.on('message', msg => {
 	
 	
-	let deleteStuff = () => {
+	let deleteMessages = () => {
 		
 		
 		msg.channel.fetchMessages({limit: 100})
@@ -42,7 +42,7 @@ client.on('message', msg => {
   
 	//cleans the current channel's messages when user writes !cleanse on that particular channel
 	if(msg.content === '!cleanse') {
-		deleteStuff();
+		deleteMessages();
 	}
 	
   
