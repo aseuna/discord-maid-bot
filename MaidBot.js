@@ -13,15 +13,15 @@ const client = new Discord.Client();
  * The ready event is vital, it means that only _after_ this will your bot start reacting to information
  * received from Discord
  */
-client.once('ready', () => {
+
+client.once('ready', function(){
 	console.log('I am ready!');
 });
 
 client.on('message', msg => {
 	
 	
-	let deleteMessages = () => {
-		
+	function deleteMessages(){
 		
 		msg.channel.fetchMessages({limit: 100})
 		.then(function(messages){
@@ -48,7 +48,6 @@ client.on('message', msg => {
 		deleteMessages();
 	}
 	
-  
 });
 
 
