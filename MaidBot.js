@@ -21,12 +21,6 @@ client.once('ready', function(){
 	console.log('I am ready!');
 });
 
-//schedules the bot to clean up channel specified in the config.json
-//timer uses cronjob notation for scheduling
-let timer = schedule.scheduleJob(config.cronscedule, function(){
-	deleteMessages(client.channels.find('name', config.timedchannel));
-});
-
 //deletes messages on the channel received as an argument
 function deleteMessages(channel){
 	
@@ -80,6 +74,11 @@ client.on('message', function(userMsg){
 	
 });
 
+//schedules the bot to clean up channel specified in the config.json
+//timer uses cronjob notation for scheduling
+let timer = schedule.scheduleJob(config.cronscedule, function(){
+	deleteMessages(client.channels.find('name', config.timedchannel));
+});
 
 // login to Discord with your app's token
 // replace config.token with your own auth token, or put your token in a config.json file
