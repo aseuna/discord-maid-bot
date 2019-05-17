@@ -3,6 +3,7 @@
 
 // Import the discord.js module
 const Discord = require('discord.js');
+//config.json file in the same root directory as maidbot.js file
 const config = require('./config.json');
 
 
@@ -34,7 +35,8 @@ function deleteMessages(channel){
 		}
 	})
 	.then(function(){
-		channel.send('Channel cleansed :sunglasses:');
+		//cleanmsg string in a separate config.json file
+		channel.send(config.cleanmsg);
 	})
 	.catch(function(err){
 		console.log('error thrown');
@@ -71,5 +73,5 @@ client.on('message', function(userMsg){
 
 
 // login to Discord with your app's token
-// replace config.token with your own, or put your token in a config.json file
+// replace config.token with your own auth token, or put your token in a config.json file
 client.login(config.token);
