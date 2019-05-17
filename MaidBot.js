@@ -1,8 +1,10 @@
 //MaidBot
 //Cleans a text channel with !cleanse
 
-// Import the discord.js module
+// Imports the discord.js module
 const Discord = require('discord.js');
+//Imports node-schedule module that handles timers and scheduling
+const schedule = require('node-schedule');
 //config.json file in the same root directory as maidbot.js file
 const config = require('./config.json');
 
@@ -15,9 +17,14 @@ const client = new Discord.Client();
  * received from Discord
  */
 
-
 client.once('ready', function(){
 	console.log('I am ready!');
+});
+
+//schedules the bot to clean up channel specified in the config.json
+//timer uses cronjob notation for scheduling
+let timer = schedule.scheduleJob('0 9 * * *', function(){
+	deleteMessages(client.channels.find('name', config.timedchannel));
 });
 
 //deletes messages on the channel received as an argument
