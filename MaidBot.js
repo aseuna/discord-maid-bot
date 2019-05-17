@@ -23,7 +23,7 @@ client.once('ready', function(){
 
 //schedules the bot to clean up channel specified in the config.json
 //timer uses cronjob notation for scheduling
-let timer = schedule.scheduleJob('0 9 * * *', function(){
+let timer = schedule.scheduleJob(config.cronscedule, function(){
 	deleteMessages(client.channels.find('name', config.timedchannel));
 });
 
@@ -72,8 +72,10 @@ client.on('message', function(userMsg){
 	}
 	else if(userMsg.content === '!botinfo'){
 		//gives info about what the bot does, when user sends '!botinfo'
-		userMsg.channel.send('"!cleanse": cleans the current channel of up to 100 messages\n' + 
-							'"!cleanse channel-name": cleans channel-name of up to 100 messages');
+		userMsg.channel.send('"!cleanse": cleans the current channel of up to 100 messages\n\n' + 
+							'"!cleanse channel-name": cleans channel-name of up to 100 messages\n\n' + 
+							'Currently has scheduled cleanup on channel "' + config.timedchannel + '"'
+							);
 	}
 	
 });
