@@ -67,9 +67,9 @@ client.on('message', function(userMsg){
 	else if(userMsg.content === '!botinfo'){
 		//gives info about what the bot does, when user sends '!botinfo'
 		userMsg.channel.send('"!cleanse": cleans the current channel of up to 100 messages\n\n' + 
-							'"!cleanse channel-name": cleans channel-name of up to 100 messages\n\n' + 
-							'Currently has scheduled cleanup on channel "' + config.timedchannel + '"'
-							);
+						'"!cleanse channel-name": cleans channel-name of up to 100 messages\n\n' + 
+						'Currently has scheduled cleanup on channel "' + config.timedchannel + '"'
+						);
 	}
 	
 });
