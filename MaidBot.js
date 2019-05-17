@@ -75,8 +75,8 @@ client.on('message', function(userMsg){
 });
 
 //schedules the bot to clean up channel specified in the config.json
-//timer uses cronjob notation for scheduling
-let timer = schedule.scheduleJob(config.cronscedule, function(){
+//timer uses cronjob notation for scheduleJob, for example '30 18 * * *'
+let timer = schedule.scheduleJob(config.cronschedule, function(){
 	deleteMessages(client.channels.find('name', config.timedchannel));
 });
 
