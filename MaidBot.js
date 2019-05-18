@@ -113,7 +113,7 @@ client.on('message', function(userMsg){
 					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
 					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
-					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n'
+					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n' +
 					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + '\n\n' +
 					'Bot doesn\'t currently use datadase for storing information so clean up channel and time has to be set every time bot goes offline and online again\n\n' + 
 					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted'
