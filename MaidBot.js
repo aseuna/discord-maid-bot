@@ -65,7 +65,7 @@ function deleteMessagesInd(channel){
 }*/
 
 // bulk deletes messages on the channel received as an argument
-// deletes messages up to 100 that are newer than 2 weeks
+// deletes messages up to 100 that are newer than 2 weeks -> bulkDelete feature
 function bulkDeleteMessages(channel){
 	
 	/** 
@@ -75,25 +75,32 @@ function bulkDeleteMessages(channel){
 	// deletes the messages on the channel if found
 	if(channel != null){
 		channel.bulkDelete(100);
-		channel.send(cleanmsg);
+		
+		// only sends the cleaning message if it's not null
+		if(cleanmsg !== null){
+			channel.send(cleanmsg);
+		}
 	}
 };
 
 
 client.on('message', function(userMsg){
 	
-	// cleans a channel's messages when user writes !cleanse and the channel name
+	// all user input option are below, the user message contains a command starting with !
+	
 	if(userMsg.content.startsWith('!clean')){
-		// if user message only contains !cleanse, the current channel is cleansed
+		// if user message only contains !clean, the current channel is cleansed
 		if(userMsg.content === '!clean'){
 			bulkDeleteMessages(userMsg.channel);
 		}
 		else{
+			// cleans a channel's messages when user writes !clean and the channel name
 			// sets channels in an array
 			let channelArr = client.channels.array();
 			// searches for a channel with the name that is inside !clean message
 			for(let i = 0; i < channelArr.length; i++){
 				if(userMsg.content.indexOf(channelArr[i].name) > -1){
+					// cleans the messages in the user specified channel if found
 					bulkDeleteMessages(channelArr[i]);
 				}
 			}
@@ -105,6 +112,8 @@ client.on('message', function(userMsg){
 					'"!clean channel-name": cleans channel-name of up to 100 messages\n\n' + 
 					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
+					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
+					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n'
 					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + '\n\n' +
 					'Bot doesn\'t currently use datadase for storing information so clean up channel and time has to be set every time bot goes offline and online again\n\n' + 
 					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted'
@@ -174,7 +183,17 @@ client.on('message', function(userMsg){
 			userMsg.channel.send('Invalid channel input');
 		}
 	}
-
+	else if(userMsg.content.startsWith('!setcleanmsg')){
+		// sets message for bot that is posted after channel clean up
+		cleanmsg = userMsg.content.substring(14);
+	}
+	else if(userMsg.content.startsWith('!delcleanmsg')){
+		// sets clean up message to null
+		// no message is posted
+		cleanmsg = null;
+	}
+	
+	// user input options end here
 	
 });
 
