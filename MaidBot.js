@@ -4,6 +4,7 @@
 // Imports the discord.js module
 const Discord = require('discord.js');
 // Imports node-schedule module that handles timers and scheduling
+// node-schedule module by Matt Patenaude
 const schedule = require('node-schedule');
 // imports dotenv module to support environment variables
 if (process.env.NODE_ENV !== 'production') {
@@ -22,20 +23,22 @@ client.once('ready', function(){
 	console.log('I am ready!');
 });
 
-//let botMember = client.guild.me;
-
 // these variables will be changeable later through user commands inside discord client
 let cleanmsg = 'Channel cleaned :sunglasses:';
-let timedchannel = 'bot-cleanup-channel';
+let timedchannel = undefined;
 
 // default values for cronjob scheduling -- 0 9 * * * => the task is scheduled every day at 9 am
 // later changeable with user commands to a desired schedule
-let cronhour = 9;
-let cronmin = 0;
-// function for returning the schedule in cronjob format used with the schedule timer
-function cronschedule(cronmin, cronhour){
-	return cronmin + ' ' + cronhour + ' * * *'
+let cronhour = undefined;
+let cronmin = undefined;
+let cronsec = undefined;
+// function returns the schedule in cronjob format used with the schedule timer
+function cronschedule(cronsec, cronmin, cronhour){
+	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
 }
+
+// timer uses cronjob notation for scheduleJob, for example '30 18 * * *'
+let timer = null;
 
 /**
 * Currently defunkt feature of mass deleting messages by fetching them individually
@@ -62,15 +65,15 @@ function deleteMessagesInd(channel){
 }*/
 
 // bulk deletes messages on the channel received as an argument
-// deletes only messages up to 100 and messages newer than 2 weeks
+// deletes messages up to 100 that are newer than 2 weeks
 function bulkDeleteMessages(channel){
 	
 	// implement permission check for deleting messages later
 	// if no permission, return a message saying no permission to clean the channel
-	
-	channel.bulkDelete(100);
-	channel.send(cleanmsg);
-
+	if(channel != null){
+		channel.bulkDelete(100);
+		channel.send(cleanmsg);
+	}
 };
 
 
@@ -97,24 +100,90 @@ client.on('message', function(userMsg){
 		// gives info about what the bot does, when user sends '!botinfo'
 		userMsg.channel.send('"!clean": cleans the current channel of up to 100 messages\n\n' + 
 					'"!clean channel-name": cleans channel-name of up to 100 messages\n\n' + 
-					'Currently has scheduled cleanup on channel "' + timedchannel + '"'
-					);
+					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, notation follows 24-hour clock, mins and secs optional\n\n' + 
+					'"!setchannel channel-name": sets the channel for daily cleanup' + 
+					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec
+ 					);
+	}
+	else if(userMsg.content.startsWith('!settime')){
+
+		// seprates the !settime command from the time user gives
+		let time = userMsg.content.substring(9);
+		// splits the time string into an array whose cells represent hours, minutes and seconds respectively
+		let timeArr = time.split('.');
+		console.log(timeArr);
+		// the user input is only invalid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
+		// the timeArr[0] string length must be less than 3 or the input is invalid
+		if((parseInt(timeArr[0]) >= 0 && parseInt(timeArr[0]) < 24) && (parseInt(timeArr[1]) >= 0 && parseInt(timeArr[1]) < 60 || timeArr[1] === undefined) && (parseInt(timeArr[2]) >= 0 && parseInt(timeArr[2]) < 60 || timeArr[2] === undefined) && timeArr[0].length < 3){
+			
+			// sets cronhour to the hour of user input
+			cronhour = parseInt(timeArr[0]);
+			// if mins and secs input is invalid they are set as zeros
+			if(timeArr[1] === undefined){
+				cronmin = 0;
+			}
+			else{
+				// sets cronmin to the mins of user input
+				cronmin = parseInt(timeArr[1]);
+			}
+			
+			if(timeArr[2] === undefined){
+				cronsec = 0;
+			}
+			else{
+				// sets cronsec to the secs of user input
+				cronsec = parseInt(timeArr[2]);
+			}
+			
+			// cancels the earlier schedulejob if it exists
+			if(timer !== null){
+				timer.cancel();
+			}
+			// timer uses cronjob notation for scheduleJob, for example '30 18 * * *'
+			timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour), function(){
+				bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel));
+			});
+			
+			userMsg.channel.send('Clean time is now set :sunglasses:');
+		}
+		else{
+			// informs user in input was invalid
+			userMsg.channel.send('Invalid time input');
+		}
+		
+	}
+	else if(userMsg.content.startsWith('!setchannel')){
+		
+		let channelFound = false;	// tells if a channel has found that corresponds to user input
+		let channelArr = client.channels.array();
+		// searches for a channel with the name that is inside !setchannel message
+		for(let i = 0; i < channelArr.length; i++){
+			if(userMsg.content.indexOf(channelArr[i].name) > -1){
+				// sets timedchannel, which is the channel to be cleaned,
+				timedchannel = channelArr[i].name;
+				channelFound = true;
+			}
+		}
+		
+		if(!channelFound){
+			userMsg.channel.send('Invalid channel input');
+		}
 	}
 	else if(userMsg.content.startsWith('!perm')){
-		if(botMember.guild.me.hasPermission('MANAGE_MESSAGES')){
+		
+		let gld = userMsg.guild;
+		if(gld.me.has('MANAGE_MESSAGES')){
 			console.log('I have permission');
 		}
 		else{
 			console.log('I don\'t have permission');
 		}
 	}
+
 	
 });
 
-// timer uses cronjob notation for scheduleJob, for example '30 18 * * *'
-let timer = schedule.scheduleJob(cronschedule(cronmin, cronhour), function(){
-	deleteMessages(client.channels.find('name', timedchannel));
-});
+
 
 // login to Discord with your app's token
 // replace process.env.TOKEN with your own auth token, or put your token in a .env file
