@@ -101,8 +101,9 @@ client.on('message', function(userMsg){
 		userMsg.channel.send('"!clean": cleans the current channel of up to 100 messages\n\n' + 
 					'"!clean channel-name": cleans channel-name of up to 100 messages\n\n' + 
 					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, notation follows 24-hour clock, mins and secs optional\n\n' + 
-					'"!setchannel channel-name": sets the channel for daily cleanup' + 
-					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec
+					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
+					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + '\n\n' +
+					'Bot doesn\'t currently use datadase for storing information so clean up channel and time has to be set every time bot goes offline and online again'
  					);
 	}
 	else if(userMsg.content.startsWith('!settime')){
