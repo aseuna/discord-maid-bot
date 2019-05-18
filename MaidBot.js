@@ -22,6 +22,7 @@ client.once('ready', function(){
 	console.log('I am ready!');
 });
 
+//let botMember = client.guild.me;
 
 // these variables will be changeable later through user commands inside discord client
 let cleanmsg = 'Channel cleaned :sunglasses:';
@@ -36,8 +37,33 @@ function cronschedule(cronmin, cronhour){
 	return cronmin + ' ' + cronhour + ' * * *'
 }
 
-// deletes messages on the channel received as an argument
-function deleteMessages(channel){
+/**
+* Currently defunkt feature of deleting messages individually
+* Using bulkDelete messages is safer regarding API abuse and possibly getting your account removed
+function deleteMessagesInd(channel){
+	// implement permission check for deleting messages later
+	// if no permission, return a message saying no permission to clean the channel
+	channel.fetchMessages({limit: 100})
+	.then(function(messages){
+		//creates an array of messages on the current channel
+		let messagesArr = messages.array();
+		// number of messages
+		let messageCount = messagesArr.length;
+		// deleting messages in the array
+		for(let i = messageCount - 1; i > -1; i--) {
+			messagesArr[i].delete();
+		}
+	})
+	.then(channel.send(cleanmsg))
+	.catch(function(err){
+		console.log('error thrown');
+		console.log(err);
+	});
+}*/
+
+// bulk deletes messages on the channel received as an argument
+// deletes only messages up to 100 and messages newer than 2 weeks
+function bulkDeleteMessages(channel){
 	
 	// implement permission check for deleting messages later
 	// if no permission, return a message saying no permission to clean the channel
@@ -50,18 +76,19 @@ function deleteMessages(channel){
 
 client.on('message', function(userMsg){
 	
-	let channelArr = client.channels.array();
 	// cleans a channel's messages when user writes !cleanse and the channel name
 	if(userMsg.content.startsWith('!clean')){
 		// if user message only contains !cleanse, the current channel is cleansed
 		if(userMsg.content === '!clean'){
-			deleteMessages(userMsg.channel);
+			bulkDeleteMessages(userMsg.channel);
 		}
 		else{
+			// sets channels in an array
+			let channelArr = client.channels.array();
 			// searches for a channel with the name that is inside !clean message
 			for(let i = 0; i < channelArr.length; i++){
 				if(userMsg.content.indexOf(channelArr[i].name) > -1){
-					deleteMessages(channelArr[i]);
+					bulkDeleteMessages(channelArr[i]);
 				}
 			}
 		}
@@ -72,6 +99,14 @@ client.on('message', function(userMsg){
 					'"!clean channel-name": cleans channel-name of up to 100 messages\n\n' + 
 					'Currently has scheduled cleanup on channel "' + timedchannel + '"'
 					);
+	}
+	else if(userMsg.content.startsWith('!perm')){
+		if(botMember.guild.me.hasPermission('MANAGE_MESSAGES')){
+			console.log('I have permission');
+		}
+		else{
+			console.log('I don\'t have permission');
+		}
 	}
 	
 });
