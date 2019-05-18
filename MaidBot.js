@@ -68,8 +68,11 @@ function deleteMessagesInd(channel){
 // deletes messages up to 100 that are newer than 2 weeks
 function bulkDeleteMessages(channel){
 	
-	// implement permission check for deleting messages later
-	// if no permission, return a message saying no permission to clean the channel
+	/** 
+	* implement permission check for deleting messages later
+	* if no permission, return a message saying no permission to clean the channel
+	*/
+	// deletes the messages on the channel if found
 	if(channel != null){
 		channel.bulkDelete(100);
 		channel.send(cleanmsg);
@@ -100,10 +103,11 @@ client.on('message', function(userMsg){
 		// gives info about what the bot does, when user sends '!botinfo'
 		userMsg.channel.send('"!clean": cleans the current channel of up to 100 messages\n\n' + 
 					'"!clean channel-name": cleans channel-name of up to 100 messages\n\n' + 
-					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, notation follows 24-hour clock, mins and secs optional\n\n' + 
+					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
 					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + '\n\n' +
-					'Bot doesn\'t currently use datadase for storing information so clean up channel and time has to be set every time bot goes offline and online again'
+					'Bot doesn\'t currently use datadase for storing information so clean up channel and time has to be set every time bot goes offline and online again\n\n' + 
+					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted'
  					);
 	}
 	else if(userMsg.content.startsWith('!settime')){
