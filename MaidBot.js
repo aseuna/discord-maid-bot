@@ -28,12 +28,12 @@ let cleanmsg = 'Channel cleaned :sunglasses:';
 let timedchannel = undefined;
 let cleanLimit = 100;
 
-// default values for cronjob scheduling -- 0 9 * * * => the task is scheduled every day at 9 am
+// default values for cronjob scheduling -- for example 0 0 9 * * * => the task is scheduled every day at 9 am
 // changeable with user commands to a desired schedule
 let cronhour = undefined;
 let cronmin = undefined;
 let cronsec = undefined;
-// function returns the schedule in cronjob format used with the schedule timer
+// function returns the schedule in cronjob format used with the schedule timer more about cronjob here: https://en.wikipedia.org/wiki/Cron
 function cronschedule(cronsec, cronmin, cronhour){
 	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
 }
@@ -153,7 +153,7 @@ client.on('message', function(userMsg){
 			if(timer !== null){
 				timer.cancel();
 			}
-			// timer uses cronjob notation for scheduleJob, for example '30 18 * * *'
+			// timer uses cronjob notation for scheduleJob
 			timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour), function(){
 				bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel));
 			});
@@ -201,6 +201,6 @@ client.on('message', function(userMsg){
 
 
 // login to Discord with your app's token
-// replace process.env.TOKEN with your own auth token, or put your token in a .env file
+// replace process.env.TOKEN with your own auth token, or put your token in a .env file, more about environment variables here: https://www.twilio.com/blog/2017/08/working-with-environment-variables-in-node-js.html
 // DO NOT PUBLICLY RELEASE YOUR AUTH TOKEN
 client.login(process.env.TOKEN);
