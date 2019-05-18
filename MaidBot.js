@@ -169,16 +169,6 @@ client.on('message', function(userMsg){
 			userMsg.channel.send('Invalid channel input');
 		}
 	}
-	else if(userMsg.content.startsWith('!perm')){
-		
-		let gld = userMsg.guild;
-		if(gld.me.has('MANAGE_MESSAGES')){
-			console.log('I have permission');
-		}
-		else{
-			console.log('I don\'t have permission');
-		}
-	}
 
 	
 });
