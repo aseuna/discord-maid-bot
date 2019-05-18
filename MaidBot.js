@@ -26,6 +26,7 @@ client.once('ready', function(){
 // these variables will be changeable later through user commands inside discord client
 let cleanmsg = 'Channel cleaned :sunglasses:';
 let timedchannel = undefined;
+let cleanLimit = 100;
 
 // default values for cronjob scheduling -- 0 9 * * * => the task is scheduled every day at 9 am
 // changeable with user commands to a desired schedule
@@ -74,7 +75,7 @@ function bulkDeleteMessages(channel){
 	*/
 	// deletes the messages on the channel if found
 	if(channel != null){
-		channel.bulkDelete(100);
+		channel.bulkDelete(cleanLimit);
 		
 		// only sends the cleaning message if it's not null
 		if(cleanmsg !== null){
@@ -125,7 +126,6 @@ client.on('message', function(userMsg){
 		let time = userMsg.content.substring(9);
 		// splits the time string into an array whose cells represent hours, minutes and seconds respectively
 		let timeArr = time.split('.');
-		console.log(timeArr);
 		// the user input is only valid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
 		// the timeArr[0] string length must be less than 3 or the input is invalid
 		if((parseInt(timeArr[0]) >= 0 && parseInt(timeArr[0]) < 24) && (parseInt(timeArr[1]) >= 0 && parseInt(timeArr[1]) < 60 || timeArr[1] === undefined) && (parseInt(timeArr[2]) >= 0 && parseInt(timeArr[2]) < 60 || timeArr[2] === undefined) && timeArr[0].length < 3){
@@ -176,6 +176,7 @@ client.on('message', function(userMsg){
 				// sets timedchannel, which is the channel to be cleaned,
 				timedchannel = channelArr[i].name;
 				channelFound = true;
+				userMsg.channel.send('Channel is now set for cleaning :sunglasses:');
 			}
 		}
 		
