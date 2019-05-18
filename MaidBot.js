@@ -42,24 +42,9 @@ function deleteMessages(channel){
 	// implement permission check for deleting messages later
 	// if no permission, return a message saying no permission to clean the channel
 	
-	channel.fetchMessages({limit: 100})
-	.then(function(messages){
-		//creates an array of messages on the current channel
-		let messagesArr = messages.array();
-		// number of messages
-		let messageCount = messagesArr.length;
-		// deleting messages in the array
-		for(let i = messageCount - 1; i > -1; i--) {
-			messagesArr[i].delete();
-		}
-	})
-	.then(function(){
-		channel.send(cleanmsg);
-	})
-	.catch(function(err){
-		console.log('error thrown');
-		console.log(err);
-	});
+	channel.bulkDelete(100);
+	channel.send(cleanmsg);
+
 };
 
 
