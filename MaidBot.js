@@ -108,8 +108,8 @@ client.on('message', function(userMsg){
 	}
 	else if(userMsg.content === '!botinfo'){
 		// gives info about what the bot does, when user sends '!botinfo'
-		userMsg.channel.send('"!clean": cleans the current channel of up to 100 messages\n\n' + 
-					'"!clean channel-name": cleans channel-name of up to 100 messages\n\n' + 
+		userMsg.channel.send('"!clean": cleans the current channel of up to 100 and 2 weeks old messages\n\n' + 
+					'"!clean channel-name": cleans channel-name of up to 100 and 2 weeks old messages\n\n' + 
 					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
 					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
