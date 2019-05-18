@@ -28,7 +28,7 @@ let cleanmsg = 'Channel cleaned :sunglasses:';
 let timedchannel = undefined;
 
 // default values for cronjob scheduling -- 0 9 * * * => the task is scheduled every day at 9 am
-// later changeable with user commands to a desired schedule
+// changeable with user commands to a desired schedule
 let cronhour = undefined;
 let cronmin = undefined;
 let cronsec = undefined;
