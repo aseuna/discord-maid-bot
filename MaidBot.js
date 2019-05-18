@@ -38,7 +38,7 @@ function cronschedule(cronmin, cronhour){
 }
 
 /**
-* Currently defunkt feature of deleting messages individually
+* Currently defunkt feature of mass deleting messages by fetching them individually
 * Using bulkDelete messages is safer regarding API abuse and possibly getting your account removed
 function deleteMessagesInd(channel){
 	// implement permission check for deleting messages later
