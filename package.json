@@ -2,7 +2,7 @@
   "name": "maidbot",
   "version": "1.0.0",
   "description": "Bot for cleaning discord text channels",
-  "main": "maidbot.js",
+  "main": "MaidBot.js",
   "engines": {
     "node": "10.15.3",
     "npm": "*"
@@ -15,7 +15,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node maidbot.js"
+    "start": "node MaidBot.js"
   },
   "repository": {
     "type": "git",
