@@ -15,6 +15,6 @@ Bot for cleaning text channels in discord.
 Make sure the bot has the rights for managing/deleting messages from the channels you want it to delete messages.
 
 
-Uses discord.js. You have to have node.js installed alongside with discord.js and node-schedule -modules. node-schedule module by Matt Patenaude.
+Uses discord.js and node-schedule -modules. You have to have node.js installed. node-schedule module by Matt Patenaude.
 
 You may use any part of the source code at will, modified or unmodified.
