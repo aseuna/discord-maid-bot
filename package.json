@@ -1,0 +1,36 @@
+{
+  "name": "maidbot",
+  "version": "1.0.0",
+  "description": "Bot for cleaning discord text channels",
+  "main": "maidbot.js",
+  "engines": {
+      "node": "10.15.3",
+      "npm": "*"
+  },
+  "dependencies": {
+    "discord.js": "^11.5.0",
+    "dotenv": "^8.0.0",
+    "node-schedule": "^1.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"start": "node maidbot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aseuna/discord-maid-bot.git"
+  },
+  "keywords": [
+    "discord",
+    "discord.js",
+    "node.js",
+    "javascript"
+  ],
+  "author": "aseuna",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aseuna/discord-maid-bot/issues"
+  },
+  "homepage": "https://github.com/aseuna/discord-maid-bot#readme"
+}
