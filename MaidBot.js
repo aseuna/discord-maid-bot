@@ -10,6 +10,9 @@ const schedule = require('node-schedule');
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
+// possibly required for hosting the bot on third party servers
+// you can probably just igonore this
+require('http').createServer().listen(3000);
 
 // Create an instance of a Discord client
 const client = new Discord.Client();
