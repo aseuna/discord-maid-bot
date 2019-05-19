@@ -10,6 +10,7 @@ Bot for cleaning text channels in discord.
 	- has optional parameter 'limit': !clean limit or !clean 'channel name' limit
 	- limit is a number between 0-100, and represents the number of messages to be deleted
 - user can set and delete a message that bot posts by !setcleanmsg 'message' and !delcleanmsg
+- command !botinfo gives information about the bot usage
 
 Make sure the bot has the rights for managing/deleting messages from the channels you want it to delete messages.
 

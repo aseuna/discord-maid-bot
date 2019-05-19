@@ -191,7 +191,8 @@ client.on('message', function(userMsg){
 					'Default message deletion limit is 100 for every command\n\n' + 
 					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + ', messages to be deleted: ' + timedlimit +'\n\n' +
 					'Bot doesn\'t currently use datadase for storing information so data has to be set every time bot goes offline and online again\n\n' + 
-					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted'
+					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted\n\n' +
+					'Github: https://github.com/aseuna/discord-maid-bot'
  					);
 	}
 	else if(userMsg.content.startsWith('!settime')){
