@@ -38,6 +38,7 @@ let cronmin = undefined;
 let cronsec = undefined;
 // function returns the schedule in cronjob format used with the schedule timer, more about cronjob here: https://en.wikipedia.org/wiki/Cron
 function cronschedule(cronsec, cronmin, cronhour){
+	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
 	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
 }
 
