@@ -166,18 +166,6 @@ client.on('message', function(userMsg){
 			userMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
 		}
 		
-		/*else{
-			// cleans a channel's messages when user writes !clean and the channel name
-			// sets channels in an array
-			let channelArr = client.channels.array();
-			// searches for a channel with the name that is inside !clean message
-			for(let i = 0; i < channelArr.length; i++){
-				if(userMsg.content.indexOf(channelArr[i].name) > -1){
-					// cleans the messages in the user specified channel if found
-					bulkDeleteMessages(channelArr[i]);
-				}
-			}
-		}*/
 	}
 	else if(userMsg.content === '!botinfo'){
 		// gives info about what the bot does, when user sends '!botinfo'
