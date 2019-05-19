@@ -157,13 +157,13 @@ client.on('message', function(userMsg){
 			}
 			else{
 				// informs user that the input is invalid
-				userMsg.channel.send('Invalid user input, should be "!clean channel-name limit"');
+				userMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
 			}
 		}
 		else{
 			// the !clean message has too many parameters 
 			// informs user that the input is invalid
-			userMsg.channel.send('Invalid user input, should be "!clean channel-name limit"');
+			userMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
 		}
 		
 		/*else{
