@@ -48,7 +48,7 @@ let timer = null;
 // function returns the schedule in cronjob format used with the schedule timer, more about cronjob here: https://en.wikipedia.org/wiki/Cron
 function cronschedule(cronsec, cronmin, cronhour, usertimezone, summertime){
 	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
-	
+	console.log('cronhour before:' + cronhour);
 	// this takes the user timezone and summertime into account, though they must be put in manually by the user
 	if(summertime){
 		cronhour = cronhour - usertimezone + TIMEZONE + 1;
@@ -68,7 +68,7 @@ function cronschedule(cronsec, cronmin, cronhour, usertimezone, summertime){
 			cronhour = cronhour - 24;
 		}
 	}
-	
+	console.log('cronhour after:' + cronhour);
 	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
 }
 
