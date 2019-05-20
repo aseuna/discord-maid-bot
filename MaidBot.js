@@ -126,29 +126,29 @@ function bulkDeleteMessages(channel, limit){
 };
 
 
-client.on('message', function(userMsg){
+client.on('message', function(memberMsg){
 	
 	// all user input option are below, the user message contains a command starting with !
 	
-	if(userMsg.content.startsWith('!clean')){
+	if(memberMsg.content.startsWith('!clean')){
 		// if user message only contains !clean, the current channel is cleansed
 		
 		// sets channels in an array
 		let channelArr = client.channels.array();
 		// splits user message into an array so each part can be handled separately
-		let userMsgArr = userMsg.content.split(' ');
-		if(userMsg.content === '!clean'){
+		let memberMsgArr = memberMsg.content.split(' ');
+		if(memberMsg.content === '!clean'){
 			// if there are no cleaning parameters, cleaning current channel with default limit
-			bulkDeleteMessages(userMsg.channel, DEF_LIMIT);
+			bulkDeleteMessages(memberMsg.channel, DEF_LIMIT);
 		}
-		else if(userMsgArr.length === 2){
-			// checks if the second part of the userMsg is a number or not
-			if(isNaN(parseInt(userMsgArr[1]))){
+		else if(memberMsgArr.length === 2){
+			// checks if the second part of the memberMsg is a number or not
+			if(isNaN(parseInt(memberMsgArr[1]))){
 				// if the second element is not a number, should be channel name
 				// searches for a channel with the name that is inside !clean message
 				let channelFound = false;	// tells if a channel has found that corresponds to user input
 				for(let i = 0; i < channelArr.length; i++){
-					if(userMsg.content.indexOf(channelArr[i].name) > -1){
+					if(memberMsg.content.indexOf(channelArr[i].name) > -1){
 						// cleans the messages in the user specified channel if found
 						bulkDeleteMessages(channelArr[i], DEF_LIMIT);
 						channelFound = true;
@@ -156,60 +156,60 @@ client.on('message', function(userMsg){
 				}
 				// no channel exists with the name that is inside !clean message
 				if(!channelFound){
-					userMsg.channel.send('Invalid channel input');
+					memberMsg.channel.send('Invalid channel input');
 				}
 			}
 			else{
 				// if the second element is a number, it should be message deletion limit between 0-100
-				if(parseInt(userMsgArr[1]) >= 0 && parseInt(userMsgArr[1]) <= 100){
-					// deletes messages on the current channel up to the "parseInt(userMsgArr[1])" -limit
-					bulkDeleteMessages(userMsg.channel, parseInt(userMsgArr[1]));
+				if(parseInt(memberMsgArr[1]) >= 0 && parseInt(memberMsgArr[1]) <= 100){
+					// deletes messages on the current channel up to the "parseInt(memberMsgArr[1])" -limit
+					bulkDeleteMessages(memberMsg.channel, parseInt(memberMsgArr[1]));
 				}
 				else{
 					// informs user that the message deletion limit is invalid
-					userMsg.channel.send('Invalid message limit input, must be between 0-100');
+					memberMsg.channel.send('Invalid message limit input, must be between 0-100');
 				}
 			}
 			
 		}
-		else if(userMsgArr.length === 3){
+		else if(memberMsgArr.length === 3){
 			// the user command !clear has two parameters
 			// the second parameter should be limit for message deletion
-			if(!isNaN(parseInt(userMsgArr[2])) && parseInt(userMsgArr[2]) >= 0 && parseInt(userMsgArr[2]) <= 100){
+			if(!isNaN(parseInt(memberMsgArr[2])) && parseInt(memberMsgArr[2]) >= 0 && parseInt(memberMsgArr[2]) <= 100){
 				
 				// searches for a channel with the name that is inside !clean message
 				let channelFound = false;	// tells if a channel has found that corresponds to user input
 				for(let i = 0; i < channelArr.length; i++){
-					if(userMsg.content.indexOf(channelArr[i].name) > -1){
+					if(memberMsg.content.indexOf(channelArr[i].name) > -1){
 						// cleans the messages in the user specified channel if found
-						bulkDeleteMessages(channelArr[i], parseInt(userMsgArr[2]));
+						bulkDeleteMessages(channelArr[i], parseInt(memberMsgArr[2]));
 						channelFound = true;
 					}
 				}
 				// no channel exists with the name that is inside !clean message
 				if(!channelFound){
-					userMsg.channel.send('Invalid channel input');
+					memberMsg.channel.send('Invalid channel input');
 				}
 				
 			}
 			else{
 				// informs user that the input is invalid
-				userMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
+				memberMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
 			}
 		}
 		else{
 			// the !clean message has too many parameters 
 			// informs user that the input is invalid
-			userMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
+			memberMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
 		}
 		
 	}
-	else if(userMsg.content.startsWith('!settime') && !userMsg.content.startsWith('!settimezone')){
+	else if(memberMsg.content.startsWith('!settime') && !memberMsg.content.startsWith('!settimezone')){
 		
 		// user must set timezone before setting cleanup time for bot to know exact time to clean messages
 		if(usertimezone !== undefined){
 			// seprates the !settime command from the time user gives
-			let time = userMsg.content.substring(9);
+			let time = memberMsg.content.substring(9);
 			// splits the time string into an array whose cells represent hours, minutes and seconds respectively
 			let timeArr = time.split('.');
 			// the user input is only valid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
@@ -244,102 +244,102 @@ client.on('message', function(userMsg){
 					bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel), timedlimit);
 				});
 				
-				userMsg.channel.send('Clean time is now set :sunglasses:');
+				memberMsg.channel.send('Clean time is now set :sunglasses:');
 			}
 			else{
 				// informs user in input was invalid
-				userMsg.channel.send('Invalid time input');
+				memberMsg.channel.send('Invalid time input');
 			}
 		}
 		else{
 			// user must set timezone before setting cleanup time for bot to know exact time to clean messages
-			userMsg.channel.send('You must set timezone before setting time, otherwise bot doesn\'t know the exact time to clean messages\n' + 
+			memberMsg.channel.send('You must set timezone before setting time, otherwise bot doesn\'t know the exact time to clean messages\n' + 
 			'example "!settimezone utc+2 summertime", summertime optional');
 		}
 	}
-	else if(userMsg.content.startsWith('!settimezone')){
+	else if(memberMsg.content.startsWith('!settimezone')){
 		// splits user message into an array so each part can be handled separately
-		let userMsgArr = userMsg.content.split(' ');
+		let memberMsgArr = memberMsg.content.split(' ');
 		
 		// checks if the second element(or the first parameter in the user message) has UTC+timzone or UTC in it
-		if(!isNaN(parseInt(userMsgArr[1].substring(3))) || userMsgArr[1].toLowerCase() === 'utc'){
+		if(!isNaN(parseInt(memberMsgArr[1].substring(3))) || memberMsgArr[1].toLowerCase() === 'utc'){
 			
 			// cheacks if there is a summertime parameter
-			if(userMsgArr[2] === undefined){
+			if(memberMsgArr[2] === undefined){
 				// no summertime parameter
 				usersummertime = false;
 				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
-				if(!isNaN(parseInt(userMsgArr[1].substring(3)))){
-					usertimezone = parseInt(userMsgArr[1].substring(3));
+				if(!isNaN(parseInt(memberMsgArr[1].substring(3)))){
+					usertimezone = parseInt(memberMsgArr[1].substring(3));
 				}
 				else{
 					usertimezone = 0;
 				}
 				
-				userMsg.channel.send('Timezone set :sunglasses:');
+				memberMsg.channel.send('Timezone set :sunglasses:');
 			}
-			else if(userMsgArr[2].toLowerCase() === 'summertime'){
+			else if(memberMsgArr[2].toLowerCase() === 'summertime'){
 				// summertime parameter present
 				usersummertime = true;
 				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
-				if(!isNaN(parseInt(userMsgArr[1].substring(3)))){
-					usertimezone = parseInt(userMsgArr[1].substring(3));
+				if(!isNaN(parseInt(memberMsgArr[1].substring(3)))){
+					usertimezone = parseInt(memberMsgArr[1].substring(3));
 				}
 				else{
 					usertimezone = 0;
 				}
 				
-				userMsg.channel.send('Timezone set :sunglasses:');
+				memberMsg.channel.send('Timezone set :sunglasses:');
 			}
 			else{
 				// if user input parameter are not valid, inform user
-				userMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
+				memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
 			}
 			
 		}
 		else{
 			// if user input parameter are not valid, inform user
-			userMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
+			memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
 		}
 		
 	}
-	else if(userMsg.content.startsWith('!setchannel')){
+	else if(memberMsg.content.startsWith('!setchannel')){
 		
 		let channelFound = false;	// tells if a channel has found that corresponds to user input
 		let channelArr = client.channels.array();
 		// searches for a channel with the name that is inside !setchannel message
 		for(let i = 0; i < channelArr.length; i++){
-			if(userMsg.content.indexOf(channelArr[i].name) > -1){
+			if(memberMsg.content.indexOf(channelArr[i].name) > -1){
 				// sets timedchannel, which is the channel to be cleaned,
 				timedchannel = channelArr[i].name;
 				channelFound = true;
-				userMsg.channel.send('Channel is now set for cleaning :sunglasses:');
+				memberMsg.channel.send('Channel is now set for cleaning :sunglasses:');
 			}
 		}
 		
 		if(!channelFound){
-			userMsg.channel.send('Invalid channel input');
+			memberMsg.channel.send('Invalid channel input');
 		}
 	}
-	else if(userMsg.content.startsWith('!settimedlimit')){
+	else if(memberMsg.content.startsWith('!settimedlimit')){
 		
 		// splits user message into an array so each part can be handled separately
-		let userMsgArr = userMsg.content.split(' ');
+		let memberMsgArr = memberMsg.content.split(' ');
 		
 		// the second element in the user message should be the message limit parameter, a value between 0-100
-		if(!isNaN(parseInt(userMsgArr[1])) && parseInt(userMsgArr[1]) >= 0 && parseInt(userMsgArr[1]) <= 100 && userMsgArr.length === 2){
+		if(!isNaN(parseInt(memberMsgArr[1])) && parseInt(memberMsgArr[1]) >= 0 && parseInt(memberMsgArr[1]) <= 100 && memberMsgArr.length === 2){
 			
 			// sets the timed limit to the value in the user command parameter
-			timedlimit = parseInt(userMsgArr[1]);
-			userMsg.channel.send('Limit set :sunglasses:');
+			timedlimit = parseInt(memberMsgArr[1]);
+			memberMsg.channel.send('Limit set :sunglasses:');
 		}
 		else{
 			// informs user that the input is invalid
-			userMsg.channel.send('Invalid user input, should be "!settimedlimit limit" limit must be 0-100');
+			memberMsg.channel.send('Invalid user input, should be "!settimedlimit limit" limit must be 0-100');
 		}
 		
 	}
-	else if(userMsg.content === '!clearsch'){
+	else if(memberMsg.content === '!clearsch'){
 		// clears the current schedule
 		
 		if(timer !== null){
@@ -351,24 +351,24 @@ client.on('message', function(userMsg){
 		let cronsec = undefined;
 		
 	}
-	else if(userMsg.content === '!schedule'){
+	else if(memberMsg.content === '!schedule'){
 		// if user message is !schedule, bot gives info about current cleanup schedule
-		userMsg.channel.send('Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + formattime(cronhour) + '.' + formattime(cronmin) + '.' + formattime(cronsec) + ', messages to be deleted: ' + timedlimit +'\n\n' +
+		memberMsg.channel.send('Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + formattime(cronhour) + '.' + formattime(cronmin) + '.' + formattime(cronsec) + ', messages to be deleted: ' + timedlimit +'\n\n' +
 					'Timezone details: ' + 'UTC' + usertimezone + ' summertime: ' + usersummertime + '\n\n'
 		);
 	}
-	else if(userMsg.content.startsWith('!setcleanmsg')){
+	else if(memberMsg.content.startsWith('!setcleanmsg')){
 		// sets message for bot that is posted after channel clean up
-		cleanmsg = userMsg.content.substring(14);
+		cleanmsg = memberMsg.content.substring(14);
 	}
-	else if(userMsg.content.startsWith('!delcleanmsg')){
+	else if(memberMsg.content.startsWith('!delcleanmsg')){
 		// sets clean up message to null
 		// no message is posted
 		cleanmsg = null;
 	}
-	else if(userMsg.content === '!botinfo'){
+	else if(memberMsg.content === '!botinfo'){
 		// gives info about what the bot does, when user sends '!botinfo'
-		userMsg.channel.send('"!clean limit": cleans the current channel of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
+		memberMsg.channel.send('"!clean limit": cleans the current channel of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
 					'"!clean channel-name limit": cleans channel-name of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
 					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
