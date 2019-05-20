@@ -46,12 +46,12 @@ let usersummertime = false;
 let timer = null;
 
 // function returns the schedule in cronjob format used with the schedule timer, more about cronjob here: https://en.wikipedia.org/wiki/Cron
-function cronschedule(cronsec, cronmin, cronhour, usertimezone, summertime){
+function cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE){
 	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
 	console.log(cronsec+','+ cronmin+','+ cronhour+','+ usertimezone+','+ summertime);
 	console.log('cronhour before:' + cronhour);
 	// this takes the user timezone and summertime into account, though they must be put in manually by the user
-	if(summertime){
+	if(usersummertime){
 		cronhour = cronhour - (usertimezone + 1) + TIMEZONE;
 		if(cronhour < 0){
 			cronhour = cronhour + 24;
@@ -230,7 +230,7 @@ client.on('message', function(userMsg){
 				timer.cancel();
 			}
 			// timer uses cronjob notation for scheduleJob
-			timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour), function(){
+			timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE), function(){
 				bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel), timedlimit);
 			});
 			
