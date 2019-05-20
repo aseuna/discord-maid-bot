@@ -346,9 +346,9 @@ client.on('message', function(memberMsg){
 			timer.cancel();
 		}
 		// sets the time variables to undefined for !schedule info
-		let cronhour = undefined;
-		let cronmin = undefined;
-		let cronsec = undefined;
+		cronhour = undefined;
+		cronmin = undefined;
+		cronsec = undefined;
 		
 	}
 	else if(memberMsg.content === '!schedule'){
