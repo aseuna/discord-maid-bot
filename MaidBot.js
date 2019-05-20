@@ -207,7 +207,7 @@ client.on('message', function(userMsg){
 	else if(userMsg.content.startsWith('!settime') && !userMsg.content.startsWith('!settimezone')){
 		
 		// user must set timezone before setting cleanup time for bot to know exact time to clean messages
-		if(usersummertime !== undefined){
+		if(usertimezone !== undefined){
 			// seprates the !settime command from the time user gives
 			let time = userMsg.content.substring(9);
 			// splits the time string into an array whose cells represent hours, minutes and seconds respectively
