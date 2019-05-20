@@ -339,6 +339,18 @@ client.on('message', function(userMsg){
 		}
 		
 	}
+	else if(userMsg.content === '!clearsch'){
+		// clears the current schedule
+		
+		if(timer !== null){
+			timer.cancel();
+		}
+		// sets the time variables to undefined for !schedule info
+		let cronhour = undefined;
+		let cronmin = undefined;
+		let cronsec = undefined;
+		
+	}
 	else if(userMsg.content === '!schedule'){
 		// if user message is !schedule, bot gives info about current cleanup schedule
 		userMsg.channel.send('Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + formattime(cronhour) + '.' + formattime(cronmin) + '.' + formattime(cronsec) + ', messages to be deleted: ' + timedlimit +'\n\n' +
@@ -362,6 +374,7 @@ client.on('message', function(userMsg){
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
 					'"!settimedlimit limit": sets the message deletion limit for timed clean up, limit is number of deleted messages 0-100\n\n' +
 					'"!settimezone timezone summertime": sets the timezone you want, timezone in format for example UTC+2, summertime optional, write the string summertime as parameter\n\n' + 
+					'"!clearsch": cancels the current schedule\n\n' + 
 					'"!schedule": gives current cleanup schedule details\n\n' +
 					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
 					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n' + 
