@@ -1,5 +1,6 @@
 // MaidBot
 // Cleans a text channel with !clean
+// user commands start with !
 
 // Imports the discord.js module
 const Discord = require('discord.js');
@@ -36,15 +37,41 @@ const DEF_LIMIT = 100;
 let cronhour = undefined;
 let cronmin = undefined;
 let cronsec = undefined;
-// function returns the schedule in cronjob format used with the schedule timer, more about cronjob here: https://en.wikipedia.org/wiki/Cron
-function cronschedule(cronsec, cronmin, cronhour){
-	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
-	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
-}
+const TIMEZONE = 0;		// TIMEZONE the bot is operating on, assuming it's UTC at the moment
+let usertimezone = undefined;
+let usersummertime = false;
 
 // timer uses cronjob notation for scheduleJob, for example '30 18 * * *'
 // timer is by default null, until user sets the time by !settime
 let timer = null;
+
+// function returns the schedule in cronjob format used with the schedule timer, more about cronjob here: https://en.wikipedia.org/wiki/Cron
+function cronschedule(cronsec, cronmin, cronhour, usertimezone, summertime){
+	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
+	
+	// this takes the user timezone and summertime into account, though they must be put in manually by the user
+	if(summertime){
+		cronhour = cronhour - usertimezone + TIMEZONE + 1;
+		if(cronhour < 0){
+			cronhour = cronhour + 24;
+		}
+		else if(cronhour > 23){
+			cronhour = cronhour - 24;
+		}
+	}
+	else{
+		cronhour = cronhour - usertimezone + TIMEZONE;
+		if(cronhour < 0){
+			cronhour = cronhour + 24;
+		}
+		else if(cronhour > 23){
+			cronhour = cronhour - 24;
+		}
+	}
+	
+	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
+}
+
 
 /**
 * Currently defunkt feature of mass deleting messages by fetching them individually
@@ -168,22 +195,6 @@ client.on('message', function(userMsg){
 		}
 		
 	}
-	else if(userMsg.content === '!botinfo'){
-		// gives info about what the bot does, when user sends '!botinfo'
-		userMsg.channel.send('"!clean limit": cleans the current channel of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
-					'"!clean channel-name limit": cleans channel-name of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
-					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
-					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
-					'"!settimedlimit limit": sets the message deletion limit for timed clean up, limit is number of deleted messages 0-100\n\n' +
-					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
-					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n' + 
-					'Default message deletion limit is 100 for every command\n\n' + 
-					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + ', messages to be deleted: ' + timedlimit +'\n\n' +
-					'Bot doesn\'t currently use datadase for storing information so data has to be set every time bot goes offline and online again\n\n' + 
-					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted\n\n' +
-					'Github: https://github.com/aseuna/discord-maid-bot'
- 					);
-	}
 	else if(userMsg.content.startsWith('!settime')){
 
 		// seprates the !settime command from the time user gives
@@ -230,6 +241,44 @@ client.on('message', function(userMsg){
 		}
 		
 	}
+	else if(userMsg.content.startsWith('!settimezone')){
+		// splits user message into an array so each part can be handled separately
+		let userMsgArr = userMsg.content.split(' ');
+		
+		// checks if the second element(or the first parameter in the user message) has UTC+timzone or UTC in it
+		if(!isNaN(parseInt(userMsgArr[1].substring(3))) || userMsgArr[1].toLowerCase() === 'utc'){
+			
+			// cheacks if there is a summertime parameter
+			if(userMsgArr[2] === undefined){
+				usersummertime = false;
+				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
+				if(!isNaN(parseInt(userMsgArr[1].substring(3)))){
+					usertimezone = parseInt(userMsgArr[1].substring(3));
+				}
+				else{
+					usertimezone = 0;
+				}
+			}
+			else if(userMsgArr[2].toLowerCase() === 'summertime'){
+				usersummertime = true;
+				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
+				if(!isNaN(parseInt(userMsgArr[1].substring(3)))){
+					usertimezone = parseInt(userMsgArr[1].substring(3));
+				}
+				else{
+					usertimezone = 0;
+				}
+			}
+			else{
+				userMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
+			}
+			
+		}
+		else{
+			userMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
+		}
+		
+	}
 	else if(userMsg.content.startsWith('!setchannel')){
 		
 		let channelFound = false;	// tells if a channel has found that corresponds to user input
@@ -247,15 +296,6 @@ client.on('message', function(userMsg){
 		if(!channelFound){
 			userMsg.channel.send('Invalid channel input');
 		}
-	}
-	else if(userMsg.content.startsWith('!setcleanmsg')){
-		// sets message for bot that is posted after channel clean up
-		cleanmsg = userMsg.content.substring(14);
-	}
-	else if(userMsg.content.startsWith('!delcleanmsg')){
-		// sets clean up message to null
-		// no message is posted
-		cleanmsg = null;
 	}
 	else if(userMsg.content.startsWith('!settimedlimit')){
 		
@@ -275,6 +315,33 @@ client.on('message', function(userMsg){
 		}
 		
 	}
+	else if(userMsg.content.startsWith('!setcleanmsg')){
+		// sets message for bot that is posted after channel clean up
+		cleanmsg = userMsg.content.substring(14);
+	}
+	else if(userMsg.content.startsWith('!delcleanmsg')){
+		// sets clean up message to null
+		// no message is posted
+		cleanmsg = null;
+	}
+	else if(userMsg.content === '!botinfo'){
+		// gives info about what the bot does, when user sends '!botinfo'
+		userMsg.channel.send('"!clean limit": cleans the current channel of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
+					'"!clean channel-name limit": cleans channel-name of up to 100 and 2 weeks old messages, limit(optional) is number of deleted messages 0-100\n\n' + 
+					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
+					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
+					'"!settimedlimit limit": sets the message deletion limit for timed clean up, limit is number of deleted messages 0-100\n\n' +
+					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
+					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n' + 
+					'"!settimezone timezone summertime": sets the timezone you want, timezone in format for example UTC+2, summertime optional, write the string summertime as parameter\n\n' + 
+					'Default message deletion limit is 100 for every command\n\n' + 
+					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + ', messages to be deleted: ' + timedlimit +'\n\n' +
+					'Bot doesn\'t currently use datadase for storing information so data has to be set every time bot goes offline and online again\n\n' + 
+					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted\n\n' +
+					'Github: https://github.com/aseuna/discord-maid-bot'
+ 					);
+	}
+	
 	
 	// user input options end here
 	
