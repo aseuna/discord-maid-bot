@@ -131,224 +131,276 @@ client.on('message', function(memberMsg){
 	// all user input option are below, the user message contains a command starting with !
 	
 	if(memberMsg.content.startsWith('!clean')){
-		// if user message only contains !clean, the current channel is cleansed
 		
-		// sets channels in an array
-		let channelArr = client.channels.array();
-		// splits user message into an array so each part can be handled separately
-		let memberMsgArr = memberMsg.content.split(' ');
-		if(memberMsg.content === '!clean'){
-			// if there are no cleaning parameters, cleaning current channel with default limit
-			bulkDeleteMessages(memberMsg.channel, DEF_LIMIT);
-		}
-		else if(memberMsgArr.length === 2){
-			// checks if the second part of the memberMsg is a number or not
-			if(isNaN(parseInt(memberMsgArr[1]))){
-				// if the second element is not a number, should be channel name
-				// searches for a channel with the name that is inside !clean message
-				let channelFound = false;	// tells if a channel has found that corresponds to user input
-				for(let i = 0; i < channelArr.length; i++){
-					if(memberMsg.content.indexOf(channelArr[i].name) > -1){
-						// cleans the messages in the user specified channel if found
-						bulkDeleteMessages(channelArr[i], DEF_LIMIT);
-						channelFound = true;
-					}
-				}
-				// no channel exists with the name that is inside !clean message
-				if(!channelFound){
-					memberMsg.channel.send('Invalid channel input');
-				}
+		// checks the memebers permission to delete messages
+		if(memberMsg.member.hasPermission('MANAGE_MESSAGES')){
+			
+			// if user message only contains !clean, the current channel is cleansed
+			// sets channels in an array
+			let channelArr = client.channels.array();
+			// splits user message into an array so each part can be handled separately
+			let memberMsgArr = memberMsg.content.split(' ');
+			if(memberMsg.content === '!clean'){
+				// if there are no cleaning parameters, cleaning current channel with default limit
+				bulkDeleteMessages(memberMsg.channel, DEF_LIMIT);
 			}
-			else{
-				// if the second element is a number, it should be message deletion limit between 0-100
-				if(parseInt(memberMsgArr[1]) >= 0 && parseInt(memberMsgArr[1]) <= 100){
-					// deletes messages on the current channel up to the "parseInt(memberMsgArr[1])" -limit
-					bulkDeleteMessages(memberMsg.channel, parseInt(memberMsgArr[1]));
+			else if(memberMsgArr.length === 2){
+				// checks if the second part of the memberMsg is a number or not
+				if(isNaN(parseInt(memberMsgArr[1]))){
+					// if the second element is not a number, should be channel name
+					// searches for a channel with the name that is inside !clean message
+					let channelFound = false;	// tells if a channel has found that corresponds to user input
+					for(let i = 0; i < channelArr.length; i++){
+						if(memberMsg.content.indexOf(channelArr[i].name) > -1){
+							// cleans the messages in the user specified channel if found
+							bulkDeleteMessages(channelArr[i], DEF_LIMIT);
+							channelFound = true;
+						}
+					}
+					// no channel exists with the name that is inside !clean message
+					if(!channelFound){
+						memberMsg.channel.send('Invalid channel input');
+					}
 				}
 				else{
-					// informs user that the message deletion limit is invalid
-					memberMsg.channel.send('Invalid message limit input, must be between 0-100');
-				}
-			}
-			
-		}
-		else if(memberMsgArr.length === 3){
-			// the user command !clear has two parameters
-			// the second parameter should be limit for message deletion
-			if(!isNaN(parseInt(memberMsgArr[2])) && parseInt(memberMsgArr[2]) >= 0 && parseInt(memberMsgArr[2]) <= 100){
-				
-				// searches for a channel with the name that is inside !clean message
-				let channelFound = false;	// tells if a channel has found that corresponds to user input
-				for(let i = 0; i < channelArr.length; i++){
-					if(memberMsg.content.indexOf(channelArr[i].name) > -1){
-						// cleans the messages in the user specified channel if found
-						bulkDeleteMessages(channelArr[i], parseInt(memberMsgArr[2]));
-						channelFound = true;
+					// if the second element is a number, it should be message deletion limit between 0-100
+					if(parseInt(memberMsgArr[1]) >= 0 && parseInt(memberMsgArr[1]) <= 100){
+						// deletes messages on the current channel up to the "parseInt(memberMsgArr[1])" -limit
+						bulkDeleteMessages(memberMsg.channel, parseInt(memberMsgArr[1]));
+					}
+					else{
+						// informs user that the message deletion limit is invalid
+						memberMsg.channel.send('Invalid message limit input, must be between 0-100');
 					}
 				}
-				// no channel exists with the name that is inside !clean message
-				if(!channelFound){
-					memberMsg.channel.send('Invalid channel input');
-				}
 				
 			}
+			else if(memberMsgArr.length === 3){
+				// the user command !clear has two parameters
+				// the second parameter should be limit for message deletion
+				if(!isNaN(parseInt(memberMsgArr[2])) && parseInt(memberMsgArr[2]) >= 0 && parseInt(memberMsgArr[2]) <= 100){
+					
+					// searches for a channel with the name that is inside !clean message
+					let channelFound = false;	// tells if a channel has found that corresponds to user input
+					for(let i = 0; i < channelArr.length; i++){
+						if(memberMsg.content.indexOf(channelArr[i].name) > -1){
+							// cleans the messages in the user specified channel if found
+							bulkDeleteMessages(channelArr[i], parseInt(memberMsgArr[2]));
+							channelFound = true;
+						}
+					}
+					// no channel exists with the name that is inside !clean message
+					if(!channelFound){
+						memberMsg.channel.send('Invalid channel input');
+					}
+					
+				}
+				else{
+					// informs user that the input is invalid
+					memberMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
+				}
+			}
 			else{
+				// the !clean message has too many parameters 
 				// informs user that the input is invalid
 				memberMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
 			}
 		}
 		else{
-			// the !clean message has too many parameters 
-			// informs user that the input is invalid
-			memberMsg.channel.send('Invalid user input, should be "!clean channel-name limit", limit must be 0-100');
+			// memeber has no permission to manage messages so dm is sent
+			memberMsg.author.send('Invalid permission, need permission to delete messages');
 		}
-		
 	}
 	else if(memberMsg.content.startsWith('!settime') && !memberMsg.content.startsWith('!settimezone')){
 		
-		// user must set timezone before setting cleanup time for bot to know exact time to clean messages
-		if(usertimezone !== undefined){
-			// seprates the !settime command from the time user gives
-			let time = memberMsg.content.substring(9);
-			// splits the time string into an array whose cells represent hours, minutes and seconds respectively
-			let timeArr = time.split('.');
-			// the user input is only valid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
-			// the timeArr[0] string length must be less than 3 or the input is invalid
-			if((parseInt(timeArr[0]) >= 0 && parseInt(timeArr[0]) < 24) && (parseInt(timeArr[1]) >= 0 && parseInt(timeArr[1]) < 60 || timeArr[1] === undefined) && (parseInt(timeArr[2]) >= 0 && parseInt(timeArr[2]) < 60 || timeArr[2] === undefined) && timeArr[0].length < 3){
-				
-				// sets cronhour to the hour of user input
-				cronhour = parseInt(timeArr[0]);
-				// if mins and secs input is invalid they are set as zeros
-				if(timeArr[1] === undefined){
-					cronmin = 0;
+		// checks the memebers permission to delete messages
+		if(memberMsg.member.hasPermission('MANAGE_MESSAGES')){
+			
+		
+			// user must set timezone before setting cleanup time for bot to know exact time to clean messages
+			if(usertimezone !== undefined){
+				// seprates the !settime command from the time user gives
+				let time = memberMsg.content.substring(9);
+				// splits the time string into an array whose cells represent hours, minutes and seconds respectively
+				let timeArr = time.split('.');
+				// the user input is only valid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
+				// the timeArr[0] string length must be less than 3 or the input is invalid
+				if((parseInt(timeArr[0]) >= 0 && parseInt(timeArr[0]) < 24) && (parseInt(timeArr[1]) >= 0 && parseInt(timeArr[1]) < 60 || timeArr[1] === undefined) && (parseInt(timeArr[2]) >= 0 && parseInt(timeArr[2]) < 60 || timeArr[2] === undefined) && timeArr[0].length < 3){
+					
+					// sets cronhour to the hour of user input
+					cronhour = parseInt(timeArr[0]);
+					// if mins and secs input is invalid they are set as zeros
+					if(timeArr[1] === undefined){
+						cronmin = 0;
+					}
+					else{
+						// sets cronmin to the mins of user input
+						cronmin = parseInt(timeArr[1]);
+					}
+					
+					if(timeArr[2] === undefined){
+						cronsec = 0;
+					}
+					else{
+						// sets cronsec to the secs of user input
+						cronsec = parseInt(timeArr[2]);
+					}
+					
+					// cancels the earlier schedulejob if it exists
+					if(timer !== null){
+						timer.cancel();
+					}
+					// timer uses cronjob notation for scheduleJob
+					timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE), function(){
+						bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel), timedlimit);
+					});
+					
+					memberMsg.channel.send('Clean time is now set :sunglasses:');
 				}
 				else{
-					// sets cronmin to the mins of user input
-					cronmin = parseInt(timeArr[1]);
+					// informs user in input was invalid
+					memberMsg.channel.send('Invalid time input');
 				}
-				
-				if(timeArr[2] === undefined){
-					cronsec = 0;
-				}
-				else{
-					// sets cronsec to the secs of user input
-					cronsec = parseInt(timeArr[2]);
-				}
-				
-				// cancels the earlier schedulejob if it exists
-				if(timer !== null){
-					timer.cancel();
-				}
-				// timer uses cronjob notation for scheduleJob
-				timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE), function(){
-					bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel), timedlimit);
-				});
-				
-				memberMsg.channel.send('Clean time is now set :sunglasses:');
 			}
 			else{
-				// informs user in input was invalid
-				memberMsg.channel.send('Invalid time input');
+				// user must set timezone before setting cleanup time for bot to know exact time to clean messages
+				memberMsg.channel.send('You must set timezone before setting time, otherwise bot doesn\'t know the exact time to clean messages\n' + 
+				'example "!settimezone utc+2 summertime", summertime optional');
 			}
+			
 		}
 		else{
-			// user must set timezone before setting cleanup time for bot to know exact time to clean messages
-			memberMsg.channel.send('You must set timezone before setting time, otherwise bot doesn\'t know the exact time to clean messages\n' + 
-			'example "!settimezone utc+2 summertime", summertime optional');
-		}
+			// memeber has no permission to manage messages so dm is sent
+			memberMsg.author.send('Invalid permission, need permission to delete messages');
+		}	
 	}
 	else if(memberMsg.content.startsWith('!settimezone')){
-		// splits user message into an array so each part can be handled separately
-		let memberMsgArr = memberMsg.content.split(' ');
 		
-		// checks if the second element(or the first parameter in the user message) has UTC+timzone or UTC in it
-		if(!isNaN(parseInt(memberMsgArr[1].substring(3))) || memberMsgArr[1].toLowerCase() === 'utc'){
+		// checks the memebers permission to delete messages
+		if(memberMsg.member.hasPermission('MANAGE_MESSAGES')){
+		
+			// splits user message into an array so each part can be handled separately
+			let memberMsgArr = memberMsg.content.split(' ');
 			
-			// cheacks if there is a summertime parameter
-			if(memberMsgArr[2] === undefined){
-				// no summertime parameter
-				usersummertime = false;
-				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
-				if(!isNaN(parseInt(memberMsgArr[1].substring(3)))){
-					usertimezone = parseInt(memberMsgArr[1].substring(3));
+			// checks if the second element(or the first parameter in the user message) has UTC+timzone or UTC in it
+			if(!isNaN(parseInt(memberMsgArr[1].substring(3))) || memberMsgArr[1].toLowerCase() === 'utc'){
+				
+				// cheacks if there is a summertime parameter
+				if(memberMsgArr[2] === undefined){
+					// no summertime parameter
+					usersummertime = false;
+					// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
+					if(!isNaN(parseInt(memberMsgArr[1].substring(3)))){
+						usertimezone = parseInt(memberMsgArr[1].substring(3));
+					}
+					else{
+						usertimezone = 0;
+					}
+					
+					memberMsg.channel.send('Timezone set :sunglasses:');
+				}
+				else if(memberMsgArr[2].toLowerCase() === 'summertime'){
+					// summertime parameter present
+					usersummertime = true;
+					// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
+					if(!isNaN(parseInt(memberMsgArr[1].substring(3)))){
+						usertimezone = parseInt(memberMsgArr[1].substring(3));
+					}
+					else{
+						usertimezone = 0;
+					}
+					
+					memberMsg.channel.send('Timezone set :sunglasses:');
 				}
 				else{
-					usertimezone = 0;
+					// if user input parameter are not valid, inform user
+					memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
 				}
 				
-				memberMsg.channel.send('Timezone set :sunglasses:');
-			}
-			else if(memberMsgArr[2].toLowerCase() === 'summertime'){
-				// summertime parameter present
-				usersummertime = true;
-				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
-				if(!isNaN(parseInt(memberMsgArr[1].substring(3)))){
-					usertimezone = parseInt(memberMsgArr[1].substring(3));
-				}
-				else{
-					usertimezone = 0;
-				}
-				
-				memberMsg.channel.send('Timezone set :sunglasses:');
 			}
 			else{
 				// if user input parameter are not valid, inform user
 				memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
 			}
-			
 		}
 		else{
-			// if user input parameter are not valid, inform user
-			memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
+			// memeber has no permission to manage messages so dm is sent
+			memberMsg.author.send('Invalid permission, need permission to delete messages');
 		}
 		
 	}
 	else if(memberMsg.content.startsWith('!setchannel')){
 		
-		let channelFound = false;	// tells if a channel has found that corresponds to user input
-		let channelArr = client.channels.array();
-		// searches for a channel with the name that is inside !setchannel message
-		for(let i = 0; i < channelArr.length; i++){
-			if(memberMsg.content.indexOf(channelArr[i].name) > -1){
-				// sets timedchannel, which is the channel to be cleaned,
-				timedchannel = channelArr[i].name;
-				channelFound = true;
-				memberMsg.channel.send('Channel is now set for cleaning :sunglasses:');
+		// checks the memebers permission to delete messages
+		if(memberMsg.member.hasPermission('MANAGE_MESSAGES')){
+			
+			let channelFound = false;	// tells if a channel has found that corresponds to user input
+			let channelArr = client.channels.array();
+			// searches for a channel with the name that is inside !setchannel message
+			for(let i = 0; i < channelArr.length; i++){
+				if(memberMsg.content.indexOf(channelArr[i].name) > -1){
+					// sets timedchannel, which is the channel to be cleaned,
+					timedchannel = channelArr[i].name;
+					channelFound = true;
+					memberMsg.channel.send('Channel is now set for cleaning :sunglasses:');
+				}
 			}
+			
+			if(!channelFound){
+				memberMsg.channel.send('Invalid channel input');
+			}
+			
 		}
-		
-		if(!channelFound){
-			memberMsg.channel.send('Invalid channel input');
+		else{
+			// memeber has no permission to manage messages so dm is sent
+			memberMsg.author.send('Invalid permission, need permission to delete messages');
 		}
 	}
 	else if(memberMsg.content.startsWith('!settimedlimit')){
 		
-		// splits user message into an array so each part can be handled separately
-		let memberMsgArr = memberMsg.content.split(' ');
-		
-		// the second element in the user message should be the message limit parameter, a value between 0-100
-		if(!isNaN(parseInt(memberMsgArr[1])) && parseInt(memberMsgArr[1]) >= 0 && parseInt(memberMsgArr[1]) <= 100 && memberMsgArr.length === 2){
+		// checks the memebers permission to delete messages
+		if(memberMsg.member.hasPermission('MANAGE_MESSAGES')){
 			
-			// sets the timed limit to the value in the user command parameter
-			timedlimit = parseInt(memberMsgArr[1]);
-			memberMsg.channel.send('Limit set :sunglasses:');
+			// splits user message into an array so each part can be handled separately
+			let memberMsgArr = memberMsg.content.split(' ');
+			
+			// the second element in the user message should be the message limit parameter, a value between 0-100
+			if(!isNaN(parseInt(memberMsgArr[1])) && parseInt(memberMsgArr[1]) >= 0 && parseInt(memberMsgArr[1]) <= 100 && memberMsgArr.length === 2){
+				
+				// sets the timed limit to the value in the user command parameter
+				timedlimit = parseInt(memberMsgArr[1]);
+				memberMsg.channel.send('Limit set :sunglasses:');
+			}
+			else{
+				// informs user that the input is invalid
+				memberMsg.channel.send('Invalid user input, should be "!settimedlimit limit" limit must be 0-100');
+			}
+			
 		}
 		else{
-			// informs user that the input is invalid
-			memberMsg.channel.send('Invalid user input, should be "!settimedlimit limit" limit must be 0-100');
+			// memeber has no permission to manage messages so dm is sent
+			memberMsg.author.send('Invalid permission, need permission to delete messages');
 		}
-		
 	}
 	else if(memberMsg.content === '!clearsch'){
-		// clears the current schedule
 		
-		if(timer !== null){
-			timer.cancel();
+		// checks the memebers permission to delete messages
+		if(memberMsg.member.hasPermission('MANAGE_MESSAGES')){
+			
+			// clears the current schedule
+			if(timer !== null){
+				timer.cancel();
+			}
+			// sets the time variables to undefined for !schedule info
+			cronhour = undefined;
+			cronmin = undefined;
+			cronsec = undefined;
+			
 		}
-		// sets the time variables to undefined for !schedule info
-		cronhour = undefined;
-		cronmin = undefined;
-		cronsec = undefined;
+		else{
+			// memeber has no permission to manage messages so dm is sent
+			memberMsg.author.send('Invalid permission, need permission to delete messages');
+		}
 		
 	}
 	else if(memberMsg.content === '!schedule'){
