@@ -312,6 +312,10 @@ client.on('message', function(memberMsg){
 					
 					memberMsg.channel.send('Timezone set :sunglasses:');
 				}
+				else if(memberMsg[1] === undefined){
+					// if user input parameter are not valid, inform user
+					memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
+				}
 				else{
 					// if user input parameter are not valid, inform user
 					memberMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
