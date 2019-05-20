@@ -48,8 +48,7 @@ let timer = null;
 // function returns the schedule in cronjob format used with the schedule timer, more about cronjob here: https://en.wikipedia.org/wiki/Cron
 function cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE){
 	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
-	console.log(cronsec+','+ cronmin+','+ cronhour+','+ usertimezone+','+ usersummertime);
-	console.log('cronhour before:' + cronhour);
+	console.log(cronsec + ',' + cronmin + ',' + cronhour + ',' + usertimezone + ',' + usersummertime);
 	// this takes the user timezone and summertime into account, though they must be put in manually by the user
 	if(usersummertime){
 		cronhour = cronhour - (usertimezone + 1) + TIMEZONE;
@@ -69,10 +68,19 @@ function cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, 
 			cronhour = cronhour - 24;
 		}
 	}
-	console.log('cronhour after:' + cronhour);
+	console.log(cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *');
 	return cronsec + ' ' + cronmin + ' ' + cronhour + ' * * *'
 }
 
+// the only purpose for this is to make the time formatting look nicer in the schedule info
+function formattime(time){
+	if(time < 10){
+		return '0' + time;
+	}
+	else{
+		return time;
+	}
+}
 
 /**
 * Currently defunkt feature of mass deleting messages by fetching them individually
@@ -197,50 +205,57 @@ client.on('message', function(userMsg){
 		
 	}
 	else if(userMsg.content.startsWith('!settime') && !userMsg.content.startsWith('!settimezone')){
-
-		// seprates the !settime command from the time user gives
-		let time = userMsg.content.substring(9);
-		// splits the time string into an array whose cells represent hours, minutes and seconds respectively
-		let timeArr = time.split('.');
-		// the user input is only valid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
-		// the timeArr[0] string length must be less than 3 or the input is invalid
-		if((parseInt(timeArr[0]) >= 0 && parseInt(timeArr[0]) < 24) && (parseInt(timeArr[1]) >= 0 && parseInt(timeArr[1]) < 60 || timeArr[1] === undefined) && (parseInt(timeArr[2]) >= 0 && parseInt(timeArr[2]) < 60 || timeArr[2] === undefined) && timeArr[0].length < 3){
-			
-			// sets cronhour to the hour of user input
-			cronhour = parseInt(timeArr[0]);
-			// if mins and secs input is invalid they are set as zeros
-			if(timeArr[1] === undefined){
-				cronmin = 0;
+		
+		// user must set timezone before setting cleanup time for bot to know exact time to clean messages
+		if(usersummertime !== undefined){
+			// seprates the !settime command from the time user gives
+			let time = userMsg.content.substring(9);
+			// splits the time string into an array whose cells represent hours, minutes and seconds respectively
+			let timeArr = time.split('.');
+			// the user input is only valid if hours are a number between 0-23 (a 24-hour clock), the mins and secs must be between 0-59, but they can also be undefined
+			// the timeArr[0] string length must be less than 3 or the input is invalid
+			if((parseInt(timeArr[0]) >= 0 && parseInt(timeArr[0]) < 24) && (parseInt(timeArr[1]) >= 0 && parseInt(timeArr[1]) < 60 || timeArr[1] === undefined) && (parseInt(timeArr[2]) >= 0 && parseInt(timeArr[2]) < 60 || timeArr[2] === undefined) && timeArr[0].length < 3){
+				
+				// sets cronhour to the hour of user input
+				cronhour = parseInt(timeArr[0]);
+				// if mins and secs input is invalid they are set as zeros
+				if(timeArr[1] === undefined){
+					cronmin = 0;
+				}
+				else{
+					// sets cronmin to the mins of user input
+					cronmin = parseInt(timeArr[1]);
+				}
+				
+				if(timeArr[2] === undefined){
+					cronsec = 0;
+				}
+				else{
+					// sets cronsec to the secs of user input
+					cronsec = parseInt(timeArr[2]);
+				}
+				
+				// cancels the earlier schedulejob if it exists
+				if(timer !== null){
+					timer.cancel();
+				}
+				// timer uses cronjob notation for scheduleJob
+				timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE), function(){
+					bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel), timedlimit);
+				});
+				
+				userMsg.channel.send('Clean time is now set :sunglasses:');
 			}
 			else{
-				// sets cronmin to the mins of user input
-				cronmin = parseInt(timeArr[1]);
+				// informs user in input was invalid
+				userMsg.channel.send('Invalid time input');
 			}
-			
-			if(timeArr[2] === undefined){
-				cronsec = 0;
-			}
-			else{
-				// sets cronsec to the secs of user input
-				cronsec = parseInt(timeArr[2]);
-			}
-			
-			// cancels the earlier schedulejob if it exists
-			if(timer !== null){
-				timer.cancel();
-			}
-			// timer uses cronjob notation for scheduleJob
-			timer = schedule.scheduleJob(cronschedule(cronsec, cronmin, cronhour, usertimezone, usersummertime, TIMEZONE), function(){
-				bulkDeleteMessages(client.channels.find(ch => ch.name === timedchannel), timedlimit);
-			});
-			
-			userMsg.channel.send('Clean time is now set :sunglasses:');
 		}
 		else{
-			// informs user in input was invalid
-			userMsg.channel.send('Invalid time input');
+			// user must set timezone before setting cleanup time for bot to know exact time to clean messages
+			userMsg.channel.send('You must set timezone before setting time, otherwise bot doesn\'t know the exact time to clean messages\n' + 
+			'example "!settimezone utc+2 summertime", summertime optional');
 		}
-		
 	}
 	else if(userMsg.content.startsWith('!settimezone')){
 		// splits user message into an array so each part can be handled separately
@@ -251,6 +266,7 @@ client.on('message', function(userMsg){
 			
 			// cheacks if there is a summertime parameter
 			if(userMsgArr[2] === undefined){
+				// no summertime parameter
 				usersummertime = false;
 				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
 				if(!isNaN(parseInt(userMsgArr[1].substring(3)))){
@@ -259,8 +275,11 @@ client.on('message', function(userMsg){
 				else{
 					usertimezone = 0;
 				}
+				
+				userMsg.channel.send('Timezone set :sunglasses:');
 			}
 			else if(userMsgArr[2].toLowerCase() === 'summertime'){
+				// summertime parameter present
 				usersummertime = true;
 				// parses the timezone part of the user comment if there is one, otherwise user timezone is UTC
 				if(!isNaN(parseInt(userMsgArr[1].substring(3)))){
@@ -269,13 +288,17 @@ client.on('message', function(userMsg){
 				else{
 					usertimezone = 0;
 				}
+				
+				userMsg.channel.send('Timezone set :sunglasses:');
 			}
 			else{
+				// if user input parameter are not valid, inform user
 				userMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
 			}
 			
 		}
 		else{
+			// if user input parameter are not valid, inform user
 			userMsg.channel.send('Timezone input invalid, example "!settimezone UTC+2 summertime", summertime optional');
 		}
 		
@@ -316,6 +339,12 @@ client.on('message', function(userMsg){
 		}
 		
 	}
+	else if(userMsg.content === '!schedule'){
+		// if user message is !schedule, bot gives info about current cleanup schedule
+		userMsg.channel.send('Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + formattime(cronhour) + '.' + formattime(cronmin) + '.' + formattime(cronsec) + ', messages to be deleted: ' + timedlimit +'\n\n' +
+					'Timezone details: ' + 'UTC' + usertimezone + ' summertime: ' + usersummertime + '\n\n'
+		);
+	}
 	else if(userMsg.content.startsWith('!setcleanmsg')){
 		// sets message for bot that is posted after channel clean up
 		cleanmsg = userMsg.content.substring(14);
@@ -332,11 +361,11 @@ client.on('message', function(userMsg){
 					'"!settime hrs.mins.secs": sets time for daily cleanup for a specified channel, use "." as a separator or the time is invalid, notation follows 24-hour clock, mins and secs optional\n\n' + 
 					'"!setchannel channel-name": sets the channel for daily cleanup\n\n' + 
 					'"!settimedlimit limit": sets the message deletion limit for timed clean up, limit is number of deleted messages 0-100\n\n' +
+					'"!settimezone timezone summertime": sets the timezone you want, timezone in format for example UTC+2, summertime optional, write the string summertime as parameter\n\n' + 
+					'"!schedule": gives current cleanup schedule details\n\n' +
 					'"!setcleanmsg message": sets message that the bot posts after cleaning a channel\n\n' + 
 					'"!delcleanmsg": deletes the message the bot posts after cleaning a channel, no message will be posted\n\n' + 
-					'"!settimezone timezone summertime": sets the timezone you want, timezone in format for example UTC+2, summertime optional, write the string summertime as parameter\n\n' + 
 					'Default message deletion limit is 100 for every command\n\n' + 
-					'Currently has scheduled cleanup on channel "' + timedchannel + '"' + ' at ' + cronhour + '.' + cronmin + '.' + cronsec + ', messages to be deleted: ' + timedlimit +'\n\n' +
 					'Bot doesn\'t currently use datadase for storing information so data has to be set every time bot goes offline and online again\n\n' + 
 					'Remember to give the bot the required permissions to delete/manage messages on the channels you want them deleted\n\n' +
 					'Github: https://github.com/aseuna/discord-maid-bot'
