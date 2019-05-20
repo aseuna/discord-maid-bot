@@ -22,6 +22,15 @@ const client = new Discord.Client();
 
 client.once('ready', function(){
 	console.log('I am ready!');
+	
+	// sends a message about !botinfo to the first text channel found
+	let channelArr = client.channels.array();
+	for(let i; i < channelArr.length; i++){
+		if(channelArr[i].type === 'text'){
+			channelArr[i].send('Type "!botinfo" for information about how to use the bot');
+			break;
+		}
+	}
 });
 
 // these variables will be changeable later through user commands inside discord client
