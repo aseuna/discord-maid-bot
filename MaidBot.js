@@ -195,7 +195,7 @@ client.on('message', function(userMsg){
 		}
 		
 	}
-	else if(userMsg.content.startsWith('!settime')){
+	else if(userMsg.content.startsWith('!settime') && !userMsg.content.startsWith('!settimezone')){
 
 		// seprates the !settime command from the time user gives
 		let time = userMsg.content.substring(9);
