@@ -29,6 +29,6 @@ You may use any part of the source code at will, modified or unmodified.
 
 I never intented to make this bot into something that is run on multiple channels. But when I started to think about it I realized a huge issue with the bot and how it receives data from the users. I haven't tested it, but I suspect that as it is now the bot will accept the data sent to it from any channel it is part of and overwrites the data received from other channels. Basically it only has one variable for each feature and it uses them for every channel. Keep that in mind if you use any part of this code.
 
-I suspect that this would have to be addressed by putting the values for each channel into a database with a corresponding guild ID and then comparing those with the guild IDs in the channels that the users currently use. Then the values for corresponding guilds would be fetched/sent from/to the database.
+I suspect that this would have to be addressed by putting the values for each channel into a database with a corresponding guild ID and then comparing those with the guild IDs in the channels that the users currently use. Then the values for corresponding guilds would be fetched from/sent to the database.
 
 At this point I won't likely be addressing this problem, but maybe at a later date.
